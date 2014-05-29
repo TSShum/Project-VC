@@ -49,3 +49,60 @@ var
 implementation
 
 {$R *.dfm}
+// Добавление в трей
+procedure TRecForm.Tray(n:Integer; Icon:TIcon);
+var Nim:TNotifyIconData;
+begin
+ with Nim do
+  begin
+   cbSize := SizeOf(Nim);
+   Wnd := RecForm.Handle;
+   uID := 1;
+   uFlags := NIF_ICON or NIF_MESSAGE or NIF_TIP;
+   hicon := Icon.Handle;
+   uCallbackMessage := wm_user+1;
+   szTip := 'Ведется распознование комманд';
+  end;
+ case n of
+  1: Shell_NotifyIcon(Nim_Add,@Nim);
+  2: Shell_NotifyIcon(Nim_Delete,@Nim);
+  3: Shell_NotifyIcon(Nim_Modify,@Nim);
+ end;
+end;
+
+
+procedure TRecForm.TrayEvent(var Msg:TMessage);
+var p:TPoint;
+begin
+GetCursorPos(p); // Запоминаем координаты курсора мыши
+case Msg.LParam of  // Проверяем какая кнопка была нажата
+  WM_LBUTTONDBLCLK:
+  begin
+    PostMessage(Handle, WM_SYSCOMMAND, SC_MAXIMIZE, 0);  
+  end;
+  WM_RBUTTONUP:
+  begin
+    SetForegroundWindow(Handle);  // Восстанавливаем программу в качестве переднего окна
+    TrayMenu.Popup(p.X, p.Y);  // Заставляем всплыть popup
+    PostMessage(Handle, WM_NULL, 0, 0);
+  end;
+end;
+end;
+
+// Отлавливаем, когда пользователь минимизирует программу
+procedure TRecForm.ControlWindow(var Msg:TMessage);
+begin
+ if Msg.WParam = SC_MINIMIZE then
+  begin
+   Tray(1, Application.Icon); // Добавляем значок в трей
+   ShowWindow(Handle, SW_HIDE); // Скрываем программу
+   ShowWindow(Application.Handle, SW_HIDE); // Скрываем кнопку с TaskBar'а
+ end else begin
+  if Msg.WParam = SC_MAXIMIZE then
+    begin
+      Tray(2, Application.Icon); // Добавляем значок в трей
+      ShowWindow(Handle, SW_SHOW); // Скрываем программу
+      ShowWindow(Application.Handle, SW_SHOW); // Скрываем кнопку с TaskBar'а
+    end else inherited;
+ end;
+end;
