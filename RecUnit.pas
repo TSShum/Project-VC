@@ -135,3 +135,142 @@ begin
   end;
   CloseHandle(FSnapshotHandle);
 end;
+
+procedure TRecForm.FormCreate(Sender: TObject);
+var
+ i: integer;
+begin
+ for i:=1 to DirectSR.CountEngines do
+  EnginesList.Items.Add(DirectSR.ModeName(i));
+  EnginesList.ItemIndex:=1;
+
+end;
+
+procedure TRecForm.EnginesListChange(Sender: TObject);
+begin
+ DirectSR.Select(EnginesList.ItemIndex+1)
+end;
+
+procedure TRecForm.btnSSClick(Sender: TObject);
+begin
+if stop then
+begin
+// если не идет прослушивание, значит запускаем его
+    DirectSR.Initialized:=1;
+    DirectSR.Select(EnginesList.ItemIndex+1);
+    DirectSR.GrammarFromFile('Grammar.txt');
+    DirectSR.Activate;
+    lblPress.Caption:='Распознаю...';
+    Stop:=false;
+    btnSS.caption:='Остановить';
+end else 
+begin
+// если прослушивание уже идет, то останавливаем его
+    DirectSR.Deactivate;
+    Stop:=true;
+    btnSS.caption:='Распозновать';
+    lblPress.Caption:='Работа приостановлена';
+end;
+
+end;
+
+procedure TRecForm.CheckTimerTimer(Sender: TObject);
+begin
+if GetAsyncKeyState(VK_F9)< 0 then begin
+  if not listen then begin
+  listen := True;
+  DirectSR.Initialized:=1;
+  DirectSR.Select(EnginesList.ItemIndex+1);
+  DirectSR.GrammarFromFile('Grammar.txt');
+  DirectSR.Activate;
+  lblPress.Caption:='Распознаю...';
+  end
+end else
+if GetAsyncKeyState(VK_F9)= 0 then begin
+  if listen then begin
+  listen := False;
+  DirectSR.Deactivate;
+  lblPress.Caption:='Работа приостановлена';
+  end;
+end;
+
+end;
+
+procedure TRecForm.DirectSRPhraseFinish(ASender: TObject; flags, beginhi,
+  beginlo, endhi, endlo: Integer; const Phrase, parsed: WideString;
+  results: Integer);
+begin
+
+// ОПЕРАЦИИ ДЛЯ ГОЛОСОВЫХ КОММАНД:
+//ShowMessage(Phrase);
+
+ If (Phrase='Close program') then close;
+ If (Phrase='My computer') then ShellExecute(RecForm.Handle, 'open', 'C:\Users\Paul\Desktop\Компьютер.lnk' ,nil, nil,SW_SHOWNORMAL);
+ If (Phrase='Open photoshop') then ShellExecute(RecForm.Handle, 'open', 'photoshop.exe', nil, nil,SW_SHOWNORMAL);
+ If (Phrase='Close photoshop') then KillTask('photoshop.exe');
+ If (Phrase='Open skype') then ShellExecute(RecForm.Handle, 'open', 'skype.exe', nil, nil,SW_SHOWNORMAL);
+ If (Phrase='Close skype') then KillTask('skype.exe');
+ If (Phrase='Open notepad') then ShellExecute(RecForm.Handle, 'open', 'notepad.exe', nil, nil,SW_SHOWNORMAL);
+ If (Phrase='Close notepad') then KillTask('notepad.exe');
+ If (Phrase='Exit') then begin
+    keybd_event(VK_LMENU,0,0,0);
+    keybd_event(VK_F4,0,0,0);
+    keybd_event(VK_F4,0,KEYEVENTF_KEYUP,0);
+    keybd_event(VK_LMENU,0,KEYEVENTF_KEYUP,0);
+    end;
+ If(Phrase='Yes, i do') then begin
+    keybd_event(VK_RETURN,0,0,0);
+    keybd_event(VK_RETURN,0,KEYEVENTF_KEYUP,0);
+    end;
+ If(Phrase='No, i dont') then begin
+    keybd_event(VK_TAB,0,0,0);
+    keybd_event(VK_TAB,0,KEYEVENTF_KEYUP,0);
+    keybd_event(VK_RETURN,0,0,0);
+    keybd_event(VK_RETURN,0,KEYEVENTF_KEYUP,0);
+    end;
+ If(Phrase='Cancel') then begin
+    keybd_event(VK_TAB,0,0,0);
+    keybd_event(VK_TAB,0,KEYEVENTF_KEYUP,0);
+    keybd_event(VK_TAB,0,0,0);
+    keybd_event(VK_TAB,0,KEYEVENTF_KEYUP,0);
+    keybd_event(VK_RETURN,0,0,0);
+    keybd_event(VK_RETURN,0,KEYEVENTF_KEYUP,0);
+    end;
+ If(Phrase='Windows') then begin
+    keybd_event(VK_LWIN,0,0,0);
+    keybd_event(VK_LWIN,0,KEYEVENTF_KEYUP,0);
+    end;
+ If(Phrase='Hide') or (Phrase='Hide program') then begin
+    PostMessage(Handle, WM_SYSCOMMAND, SC_MINIMIZE, 0);
+    end;
+ If(Phrase='Show') or (Phrase='Show program') then begin
+    PostMessage(Handle, WM_SYSCOMMAND, SC_MAXIMIZE, 0);
+    end;
+ If(Phrase='List of programs') then begin
+    ShellExecute(RecForm.Handle, 'open', 'C:\Users\Paul\Desktop\Распознование голоса\ListWork.jpg' ,nil, nil,SW_SHOWNORMAL);
+    Sleep(300);
+    keybd_event(VK_F11,0,0,0);
+    keybd_event(VK_F11,0,KEYEVENTF_KEYUP,0);
+    end;
+ If (Phrase='Good job') then ShowMessage('Thank you');
+ end;
+
+
+procedure TRecForm.DirectSRVUMeter(ASender: TObject; beginhi, beginlo,
+  level: Integer);
+begin
+VolumeProgressBar.Position:=level;
+end;
+
+
+procedure TRecForm.N1Click(Sender: TObject);
+begin
+  Close;
+end;
+
+procedure TRecForm.N2Click(Sender: TObject);
+begin
+  PostMessage(Handle, WM_SYSCOMMAND, SC_MAXIMIZE, 0);
+end;
+
+End.
