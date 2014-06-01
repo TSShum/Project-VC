@@ -1,0 +1,23 @@
+[Grammar]
+LangID=1033
+Type=cfg
+
+[<Start>]
+<Start> = Close [opt] program
+<Start> = My computer
+<Start> = Open my computer
+<Start> = Hide [opt] program
+<Start> = Show [opt] program
+<Start> = Open photoshop
+<Start> = Close photoshop
+<Start> = Open notepad
+<Start> = Close notepad
+<Start> = Open skype
+<Start> = Close skype
+<Start> = Yes, i do
+<Start> = No, i dont
+<Start> = Can?el
+<Start> = Windows
+<Start> = List of programs
+<Start> = Exit
+<Start> = Good job
