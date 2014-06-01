@@ -108,7 +108,7 @@ begin
 end;
 
 //'Убийца' процессов
-function killTask(ExeFileName: string): Integer;
+{function killTask(ExeFileName: string): Integer;
 const
   PROCESS_TERMINATE = $0001;
 var
@@ -134,7 +134,7 @@ begin
      ContinueLoop := Process32Next(FSnapshotHandle, FProcessEntry32);
   end;
   CloseHandle(FSnapshotHandle);
-end;
+end;}
 
 procedure TRecForm.FormCreate(Sender: TObject);
 var
@@ -207,11 +207,11 @@ begin
  If (Phrase='Close program') then close;
  If (Phrase='My computer') then ShellExecute(RecForm.Handle, 'open', 'C:\Users\Paul\Desktop\Компьютер.lnk' ,nil, nil,SW_SHOWNORMAL);
  If (Phrase='Open photoshop') then ShellExecute(RecForm.Handle, 'open', 'photoshop.exe', nil, nil,SW_SHOWNORMAL);
- If (Phrase='Close photoshop') then KillTask('photoshop.exe');
+// If (Phrase='Close photoshop') then KillTask('photoshop.exe');
  If (Phrase='Open skype') then ShellExecute(RecForm.Handle, 'open', 'skype.exe', nil, nil,SW_SHOWNORMAL);
- If (Phrase='Close skype') then KillTask('skype.exe');
+// If (Phrase='Close skype') then KillTask('skype.exe');
  If (Phrase='Open notepad') then ShellExecute(RecForm.Handle, 'open', 'notepad.exe', nil, nil,SW_SHOWNORMAL);
- If (Phrase='Close notepad') then KillTask('notepad.exe');
+// If (Phrase='Close notepad') then KillTask('notepad.exe');
  If (Phrase='Exit') then begin
     keybd_event(VK_LMENU,0,0,0);
     keybd_event(VK_F4,0,0,0);
